@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import loginimage from "../assets/LoginImage.jpg"
-import facebook from "../assets/facebook-removebg-preview.png"
-import instagram from "../assets/instagram-removebg-preview.png"
-import twitter from "../assets/twitter-removebg-preview.png"
+import loginimage from "../assets/assets/speakeasy2.jpg"
+import facebook from "../assets/assets/facebook-removebg-preview.png"
+import instagram from "../assets/assets/instagram-removebg-preview.png"
+import twitter from "../assets/assets/twitter-removebg-preview.png"
 import { useNavigate } from 'react-router-dom';
 
 // Header component remains the same
@@ -18,10 +18,10 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-[#ff735c] text-white py-4 px-12 flex justify-between items-center">
+    <header className="bg-blue-900 text-white py-4 px-12 flex justify-between items-center">
       <h1 className="text-4xl font-bold cursor-pointer" onClick={handleHomeClick}>
-        <span className="text-white">Summ</span>
-        <span className="text-gray-800">It</span>
+        <span className="text-white">Speak</span>
+        <span className="text-red-500">Easy</span>
       </h1>
       <nav>
         <a href="#" className="text-lg px-4 hover:text-gray-400" onClick={handleHomeClick}>Home</a>
@@ -71,7 +71,7 @@ const LoginForm = () => {
         <a href="#" className="text-sm text-red-500 hover:text-gray-600 underline">Forgot your password?</a>
       </div>
       <button 
-        className="w-full bg-gray-800 text-white p-3 hover:bg-red-600" 
+        className="w-full bg-blue-900 text-white p-3 hover:bg-red-600" 
         onClick={handleLogin}
         disabled={!email || !password} // Disable the button if email or password is empty
       >
@@ -104,7 +104,9 @@ const LoginPage = () => {
       <Header />
       <main className="flex-1 flex flex-row pb-14 bg-white-300 justify-center items-center my-12 mx-auto px-4 max-w-6xl">
         <div className="flex-1">
-          <img src={loginimage} alt="Speaker" className="w-full h-auto md:w-auto" />
+          <img src={loginimage} alt="Speaker" className="w-full h-auto md:w-auto"
+              style={{ position: 'relative', zIndex: 1, maskImage: "linear-gradient(to right, black 70%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to right, black 70%, transparent 100%)", }} />
         </div>
         <div className="flex-1">
           <LoginForm />
