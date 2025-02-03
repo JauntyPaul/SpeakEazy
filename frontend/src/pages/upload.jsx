@@ -8,6 +8,13 @@ function UploadPage() {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate(); // Hook to navigate programmatically
 
+  const token = localStorage.getItem("token"); // Retrieve token
+
+  if (!token) {
+    console.error("User is not authenticated");
+    return;
+  }
+
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
   };
