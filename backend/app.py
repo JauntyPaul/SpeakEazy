@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import uuid
-from inference import send_audio_to_colab
+
 from firebase_config import db
 
 app = Flask(__name__)
@@ -14,7 +14,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 import requests
 
 # Update this manually whenever ngrok restarts (or use Firebase to automate)
-COLAB_URL = "https://0a75-34-48-173-20.ngrok-free.app"
+COLAB_URL = "https://2388-34-23-37-47.ngrok-free.app"
 
 def send_audio_to_colab(file_path):
     """Sends audio file to Colab API for inference."""
@@ -33,6 +33,7 @@ def send_audio_to_colab(file_path):
 def upload_audio():
     """Endpoint to receive audio from frontend."""
     if 'audio' not in request.files or 'user_id' not in request.form:
+        print("no audio")
         return jsonify({'error': 'Missing audio or user ID'}), 400
 
     user_id = request.form['user_id']  # Google ID from frontend
