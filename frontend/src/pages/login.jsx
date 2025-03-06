@@ -39,17 +39,21 @@ const LoginForm = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken(); // Get Firebase ID Token
+  
       console.log("Google ID Token:", idToken);
-
+      console.log("User ID:", result.user.uid); // Debugging to check user ID
+  
+      // Store token & user ID in localStorage
       localStorage.setItem("token", idToken);
-
+      localStorage.setItem("user_id", result.user.uid); // Store user ID
+  
       // Navigate to upload page after successful login
       navigate("/upload");
-
     } catch (error) {
       console.error("Google Sign-In Error:", error);
     }
   };
+  
 
   return (
     <div className="w-full max-w-xs p-8 ml-auto">
