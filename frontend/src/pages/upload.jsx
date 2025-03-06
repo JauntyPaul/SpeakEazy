@@ -20,28 +20,48 @@ function UploadPage() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      console.log("No file selected.");
+    const user_id = localStorage.getItem("user_id");
+    if (!user_id) {
+      console.error("User ID is missing! Redirecting to login...");
+      navigate("/login");
       return;
     }
-
+  
+    if (!selectedFile) {
+      alert("Please select an audio file first");
+      return;
+    }
+  
     const formData = new FormData();
-    formData.append('audio', selectedFile);
-
+    formData.append("audio", selectedFile);
+    formData.append("user_id", user_id);
+  
     try {
-      const response = await fetch('http://127.0.0.1:5000/predict', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:5000/upload-audio", {
+        method: "POST",
         body: formData,
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
       });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Response from server:", data);
-        navigate('/assessment', { state: { assessmentData: data.result } }); // Navigate to assessment page with state
-      } else {
-        console.error("Failed to upload file:", response.statusText);
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || `Server error: ${response.status}`);
       }
+  
+      console.log("Response from server:", data);
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      navigate("/assessment", { state: { assessmentData: data } });
     } catch (error) {
       console.error("Error uploading file:", error);
+      alert(`Upload failed: ${error.message}`);
     }
   };
 
