@@ -7,6 +7,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from firebase_admin import credentials, firestore
 import datetime  # Ensure datetime is imported
+import asyncio  # Import asyncio to run async functions
+from exercise_deepseek import suggest_speech_fluency_plan  # Import the function
 
 # Load Firebase credentials
 cred = credentials.Certificate("firebaseKey.json")  # Ensure this file exists
@@ -20,12 +22,12 @@ app = Flask(__name__)
 # Configuration
 UPLOAD_FOLDER = "uploads"
 RESPONSES_FOLDER = "responses"
-COLAB_URL = "https://f1be-34-169-45-179.ngrok-free.app"  # Update when ngrok restarts
+COLAB_URL = "https://eba8-35-184-86-40.ngrok-free.app"  # Update when ngrok restarts
 
 # CORS Configuration
 CORS(app, 
      resources={r"/*": {
-         "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+         "origins": ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
          "methods": ["GET", "POST", "OPTIONS"],
          "allow_headers": ["Content-Type", "Authorization"],
          "supports_credentials": True
@@ -113,10 +115,14 @@ def upload_audio():
         if "error" in prediction:
             return jsonify(prediction), 500
 
+        # Call DeepSeek API with the prediction result
+        deepseek_result = asyncio.run(suggest_speech_fluency_plan(prediction))
+
         # ✅ Store only the Colab response in Firebase Firestore
         result = {
             "user_id": user_id,
             **prediction,  # Merging Colab response directly
+            "deepseek_result": deepseek_result,  # Add DeepSeek result
             "timestamp": datetime.datetime.utcnow().isoformat()  # Fix timestamp issue
         }
         db.collection("assessments").add(result)
@@ -129,7 +135,7 @@ def upload_audio():
 
         print(f"📄 Response saved as JSON: {json_filename}")
 
-        return jsonify({'prediction': prediction, 'message': 'Audio processed successfully'})
+        return jsonify({'prediction': prediction, 'deepseek_result': deepseek_result, 'message': 'Audio processed successfully'})
 
     except Exception as e:
         print(f"🔴 Upload error: {str(e)}")

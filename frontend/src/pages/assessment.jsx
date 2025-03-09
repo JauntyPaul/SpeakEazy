@@ -13,6 +13,7 @@ function AssessmentPage() {
   const confidence = prediction?.confidence ? (prediction.confidence * 100).toFixed(2) + "%" : "N/A";
   const predictedClass = prediction?.predicted_class || "Unknown";
   const audioFeatures = prediction?.features || {};
+  const deepseekResult = data?.deepseek_result || "No exercise recommendations available.";
 
   return (
     <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen">
@@ -94,14 +95,12 @@ function AssessmentPage() {
             )}
           </div>
 
-          {/* Placeholder for future generated exercises */}
+          {/* Suggested Exercises */}
           <div className="bg-yellow-100 border border-yellow-900 p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold text-yellow-900 mb-4">
               Suggested Exercises:
             </h3>
-            <p className="text-gray-800 text-lg">
-              Exercise recommendations will be generated based on the assessment.
-            </p>
+            <p className="text-gray-800 text-lg">{deepseekResult}</p>
           </div>
 
           {/* Button to track patient progress */}
