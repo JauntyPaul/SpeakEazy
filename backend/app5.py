@@ -6,12 +6,12 @@ import firebase_admin
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from firebase_admin import credentials, firestore
-import datetime  # Ensure datetime is imported
-import asyncio  # Import asyncio to run async functions
-from exercise_deepseek import suggest_speech_fluency_plan  # Import the function
+import datetime
+import asyncio
+from exercise_deepseek import suggest_speech_fluency_plan
 
 # Load Firebase credentials
-cred = credentials.Certificate("firebaseKey.json")  # Ensure this file exists
+cred = credentials.Certificate("firebaseKey.json")
 firebase_admin.initialize_app(cred)
 
 # Firestore
@@ -22,7 +22,7 @@ app = Flask(__name__)
 # Configuration
 UPLOAD_FOLDER = "uploads"
 RESPONSES_FOLDER = "responses"
-COLAB_URL = "https://eba8-35-184-86-40.ngrok-free.app"  # Update when ngrok restarts
+COLAB_URL = "https://d735-34-85-225-74.ngrok-free.app"  # Update when ngrok restarts
 
 # CORS Configuration
 CORS(app, 
@@ -36,7 +36,6 @@ CORS(app,
 # Ensure necessary folders exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESPONSES_FOLDER, exist_ok=True)
-
 
 def send_audio_to_colab(file_path):
     """Sends an audio file to the Colab API for inference."""
@@ -74,7 +73,6 @@ def send_audio_to_colab(file_path):
     except Exception as e:
         print(f"🔴 Error sending to Colab: {str(e)}")
         return {"error": str(e)}
-
 
 @app.route('/upload-audio', methods=['POST', 'OPTIONS'])
 def upload_audio():
@@ -118,24 +116,30 @@ def upload_audio():
         # Call DeepSeek API with the prediction result
         deepseek_result = asyncio.run(suggest_speech_fluency_plan(prediction))
 
-        # ✅ Store only the Colab response in Firebase Firestore
+        # ✅ Prepare comprehensive result for Firebase
         result = {
             "user_id": user_id,
-            **prediction,  # Merging Colab response directly
-            "deepseek_result": deepseek_result,  # Add DeepSeek result
-            "timestamp": datetime.datetime.utcnow().isoformat()  # Fix timestamp issue
+            "colab_prediction": prediction,
+            "deepseek_exercises": deepseek_result,
+            "timestamp": datetime.datetime.utcnow().isoformat()
         }
-        db.collection("assessments").add(result)
-        print(f"✅ Colab prediction stored in Firebase for user: {user_id}")
 
-        # Save response as JSON file
+        # Store in Firebase Firestore
+        doc_ref = db.collection("assessments").add(result)
+        print(f"✅ Assessment stored in Firebase for user: {user_id}")
+
+        # Save response as JSON file (optional, but kept for backup)
         json_filename = os.path.join(RESPONSES_FOLDER, f"{user_id}_{uuid.uuid4()}.json")
         with open(json_filename, "w") as json_file:
             json.dump(result, json_file, indent=4)
 
         print(f"📄 Response saved as JSON: {json_filename}")
 
-        return jsonify({'prediction': prediction, 'deepseek_result': deepseek_result, 'message': 'Audio processed successfully'})
+        return jsonify({
+            'colab_prediction': prediction, 
+            'deepseek_exercises': deepseek_result, 
+            'message': 'Audio processed successfully'
+        })
 
     except Exception as e:
         print(f"🔴 Upload error: {str(e)}")

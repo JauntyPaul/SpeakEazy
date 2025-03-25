@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown"; // Import ReactMarkdown
 import ".././App.css";
 
 function AssessmentPage() {
@@ -7,13 +8,17 @@ function AssessmentPage() {
   const navigate = useNavigate();
   const data = location.state?.assessmentData;
 
-  // Extract values from response
-  const message = data?.message || "No message available";
-  const prediction = data?.prediction || {};
-  const confidence = prediction?.confidence ? (prediction.confidence * 100).toFixed(2) + "%" : "N/A";
-  const predictedClass = prediction?.predicted_class || "Unknown";
-  const audioFeatures = prediction?.features || {};
-  const deepseekResult = data?.deepseek_result || "No exercise recommendations available.";
+  // Extract values from the new response structure
+  const colab_prediction = data?.colab_prediction || {};
+  const deepseek_exercises = data?.deepseek_exercises || "No exercise recommendations available.";
+
+  // Extract specific details from Colab prediction
+  const confidence = colab_prediction?.confidence
+    ? (colab_prediction.confidence * 100).toFixed(2) + "%"
+    : "N/A";
+  const predictedClass = colab_prediction?.predicted_class || "Unknown";
+  const audioFeatures = colab_prediction?.features || {};
+  const message = colab_prediction?.message || "No detailed message available";
 
   return (
     <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen">
@@ -100,7 +105,20 @@ function AssessmentPage() {
             <h3 className="text-xl font-semibold text-yellow-900 mb-4">
               Suggested Exercises:
             </h3>
-            <p className="text-gray-800 text-lg">{deepseekResult}</p>
+            {typeof deepseek_exercises === "string" ? (
+              <div className="text-gray-800 text-left text-lg">
+                <ReactMarkdown>{deepseek_exercises}</ReactMarkdown>
+              </div>
+            ) : (
+              <div>
+                {deepseek_exercises.map((exercise, index) => (
+                  <div key={index} className="mb-4">
+                    <p className="font-semibold">{exercise.type}</p>
+                    <p>{exercise.description}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Button to track patient progress */}
