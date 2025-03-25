@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '.././App.css';
 import uploadImage from "../assets/assets/smiling.jpg";
+import Loader from "../components/loader"; // Import the Loader component
 
 function UploadPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate(); // Hook to navigate programmatically
+  const [isUploading, setIsUploading] = useState(false); // New state for loading
+  const navigate = useNavigate();
 
-  const token = localStorage.getItem("token"); // Retrieve token
+  const token = localStorage.getItem("token");
 
   if (!token) {
     console.error("User is not authenticated");
@@ -35,7 +37,9 @@ function UploadPage() {
     const formData = new FormData();
     formData.append("audio", selectedFile);
     formData.append("user_id", user_id);
-  
+    
+    setIsUploading(true); // Show loader
+    
     try {
       const response = await fetch("http://127.0.0.1:5000/upload-audio", {
         method: "POST",
@@ -62,6 +66,8 @@ function UploadPage() {
     } catch (error) {
       console.error("Error uploading file:", error);
       alert(`Upload failed: ${error.message}`);
+    } finally {
+      setIsUploading(false); // Hide loader regardless of success or failure
     }
   };
 
@@ -105,7 +111,7 @@ function UploadPage() {
         </div>
       </main>
 
-      {showModal && (
+      {showModal && !isUploading && (
         <div className="fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-8 rounded-lg">
             <h2 className="text-xl font-semibold mb-4">Upload Audio File</h2>
@@ -114,6 +120,15 @@ function UploadPage() {
               <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-blue-900 transition-colors duration-200" onClick={() => { setShowModal(false); handleUpload(); }}>Upload</button>
               <button className="ml-4 px-4 py-2 rounded border border-gray-300" onClick={() => setShowModal(false)}>Cancel</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isUploading && (
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="flex flex-col items-center">
+            <Loader size={40} /> {/* Using the Loader component */}
+            <p className="text-white mt-4 text-lg">Uploading...</p>
           </div>
         </div>
       )}
