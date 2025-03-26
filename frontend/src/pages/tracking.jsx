@@ -3,6 +3,28 @@ import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, query, where, orderBy, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
 import "../App.css";
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function ProgressTrackingPage() {
   const navigate = useNavigate();
@@ -15,6 +37,8 @@ function ProgressTrackingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sessionResults, setSessionResults] = useState([]);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [showInfo, setShowInfo] = useState(null);
 
   // Profile data state
   const [profileData, setProfileData] = useState({
@@ -26,14 +50,11 @@ function ProgressTrackingPage() {
     profilePic: null,
   });
 
-  const [activeTab, setActiveTab] = useState("overview");
-
   // Fetch user ID and profile data from Firebase Auth and Firestore
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
-        // Update profile data with Firebase Auth info
         setProfileData((prevData) => ({
           ...prevData,
           name: user.displayName || "John Doe",
@@ -41,7 +62,6 @@ function ProgressTrackingPage() {
           profilePic: user.photoURL || null,
         }));
 
-        // Fetch additional profile data (gender, age, dob) from Firestore
         try {
           const userDocRef = doc(db, "users", user.uid);
           const userDoc = await getDoc(userDocRef);
@@ -75,8 +95,6 @@ function ProgressTrackingPage() {
       try {
         setLoading(true);
         const assessmentsRef = collection(db, "assessments");
-
-        // Query assessments collection, filter by user_id, order by timestamp
         const q = query(
           assessmentsRef,
           where("user_id", "==", userId),
@@ -138,7 +156,7 @@ function ProgressTrackingPage() {
           age: profileData.age,
           dob: profileData.dob,
         },
-        { merge: true } // Use merge to update only these fields
+        { merge: true }
       );
       setIsEditing(false);
       setError(null);
@@ -146,6 +164,115 @@ function ProgressTrackingPage() {
       console.error("Error saving profile data:", err);
       setError("Failed to save profile data.");
     }
+  };
+
+  // Chart data preparation
+  const chartData = {
+    labels: sessionResults.map((session, index) => `Session ${index + 1}`),
+    datasets: [
+      {
+        label: 'Average Pitch (Hz)',
+        data: sessionResults.map(session => session.features.avg_pitch || 0),
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      },
+      {
+        label: 'Duration (s)',
+        data: sessionResults.map(session => session.features.duration || 0),
+        borderColor: 'rgb(54, 162, 235)',
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+      },
+      {
+        label: 'Speech Rate (Hz)',
+        data: sessionResults.map(session => session.features.speech_rate || 0),
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+      },
+      {
+        label: 'Total Pause Time (s)',
+        data: sessionResults.map(session => session.features.total_pause_time || 0),
+        borderColor: 'rgb(153, 102, 255)',
+        backgroundColor: 'rgba(153, 102, 255, 0.5)',
+      },
+      {
+        label: 'Zero Crossings',
+        data: sessionResults.map(session => session.features.zero_crossings || 0),
+        borderColor: 'rgb(255, 159, 64)',
+        backgroundColor: 'rgba(255, 159, 64, 0.5)',
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+        onClick: () => {}, // Prevent hiding datasets on legend click
+        labels: {
+          generateLabels: (chart) => {
+            const original = ChartJS.defaults.plugins.legend.labels.generateLabels(chart);
+            original.forEach((label, index) => {
+              label.text += ' ℹ️'; // Add info icon
+            });
+            return original;
+          },
+        },
+      },
+      title: {
+        display: true,
+        text: 'Speech Features Progress Over Sessions',
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Value',
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Sessions',
+        },
+      },
+    },
+  };
+
+  const featureInfo = {
+    'Average Pitch (Hz)': {
+      description: 'Measures the average frequency of vocal cord vibrations. Higher pitch might indicate tension, while lower pitch could suggest relaxation. Consistent improvement in maintaining a stable pitch is desirable.',
+      trend: 'Stable values indicate improvement',
+    },
+    'Duration (s)': {
+      description: 'Total length of speech. Longer durations might indicate improved fluency, but could also suggest slower speech rate if pauses increase.',
+      trend: 'Increase may indicate improvement in fluency',
+    },
+    'Speech Rate (Hz)': {
+      description: 'Speed of speech in Hertz. A balanced rate is key; too fast might indicate rushing, too slow could suggest difficulty. Improvement depends on achieving a natural pace.',
+      trend: 'Stable, natural rate indicates improvement',
+    },
+    'Total Pause Time (s)': {
+      description: 'Cumulative time of silences. Fewer pauses might indicate better fluency, but some pauses are natural for clarity. Reduction to a natural level is ideal.',
+      trend: 'Moderate decrease indicates improvement',
+    },
+    'Zero Crossings': {
+      description: 'Number of times the signal crosses zero amplitude. Higher values might indicate more dynamic speech, but too many could suggest noise or instability.',
+      trend: 'Moderate increase may indicate improvement',
+    },
+  };
+
+  const handleLegendHover = (event, legendItem) => {
+    setShowInfo(legendItem.text.replace(' ℹ️', ''));
+  };
+
+  const handleLegendLeave = () => {
+    setShowInfo(null);
   };
 
   return (
@@ -312,6 +439,33 @@ function ProgressTrackingPage() {
         {/* Session History */}
         {activeTab === "analysis" && (
           <div className="space-y-8">
+            {/* Graph Section */}
+            <div className="bg-gray-100 border border-gray-300 p-6 rounded-lg shadow-md relative">
+              <Line 
+                data={chartData} 
+                options={{
+                  ...chartOptions,
+                  plugins: {
+                    ...chartOptions.plugins,
+                    legend: {
+                      ...chartOptions.plugins.legend,
+                      onHover: handleLegendHover,
+                      onLeave: handleLegendLeave,
+                    },
+                  },
+                }} 
+              />
+              {showInfo && (
+                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white border border-gray-300 p-4 rounded-lg shadow-lg z-10 max-w-xs mr-4">
+                  <h4 className="font-semibold text-lg mb-2">{showInfo}</h4>
+                  <p className="text-gray-700">{featureInfo[showInfo].description}</p>
+                  <p className="text-gray-600 mt-2">
+                    <strong>Trend:</strong> {featureInfo[showInfo].trend}
+                  </p>
+                </div>
+              )}
+            </div>
+
             {loading ? (
               <p>Loading session data...</p>
             ) : error ? (

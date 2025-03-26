@@ -22,7 +22,7 @@ app = Flask(__name__)
 # Configuration
 UPLOAD_FOLDER = "uploads"
 RESPONSES_FOLDER = "responses"
-COLAB_URL = "https://a7cc-34-16-192-74.ngrok-free.app"  # Update when ngrok restarts
+COLAB_URL = "https://6349-34-19-13-178.ngrok-free.app"  # Update when ngrok restarts
 
 # CORS Configuration
 CORS(app, 
