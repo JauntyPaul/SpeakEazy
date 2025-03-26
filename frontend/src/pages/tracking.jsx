@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { getFirestore, collection, query, where, orderBy, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
 import "../App.css";
-import { signOut } from "firebase/auth";
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -43,7 +42,7 @@ function ProgressTrackingPage() {
   // Profile data state
   const [profileData, setProfileData] = useState({
     //name: "John Doe",
-    //mail: "johndoe@example.com",
+    //email: "johndoe@example.com",
     //gender: "Not provided",
     //age: "Not provided",
     //dob: "Not provided",
@@ -98,7 +97,7 @@ function ProgressTrackingPage() {
         const q = query(
           assessmentsRef,
           where("user_id", "==", userId),
-          orderBy("timestamp", "desc")
+          orderBy("timestamp", "desc") // Kept as descending order
         );
 
         const querySnapshot = await getDocs(q);
@@ -180,7 +179,7 @@ function ProgressTrackingPage() {
 
   // Chart data preparation
   const chartData = {
-    labels: sessionResults.map((session, index) => `Session ${index + 1}`),
+    labels: sessionResults.map((session, index) => `Session ${sessionResults.length - index}`), // Updated to match session headers
     datasets: [
       {
         label: 'Average Pitch (Hz)',
@@ -476,7 +475,7 @@ function ProgressTrackingPage() {
                 key={session.id}
                 className="bg-red-100 border border-red-900 p-6 rounded-lg shadow-md"
               >
-                <h4 className="text-xl font-semibold text-red-900 mb-2">Session {index + 1}</h4>
+                <h4 className="text-xl font-semibold text-red-900 mb-2">Session {sessionResults.length - index}</h4>
                 <p className="text-gray-700">
                   Date: {new Date(session.timestamp).toLocaleDateString()}
                 </p>
