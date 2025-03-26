@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAuth, signOut } from 'firebase/auth'; // Import getAuth and signOut
 import '.././App.css';
 import uploadImage from "../assets/assets/smiling.jpg";
 import Loader from "../components/loader"; // Import the Loader component
@@ -7,8 +8,10 @@ import Loader from "../components/loader"; // Import the Loader component
 function UploadPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [isUploading, setIsUploading] = useState(false); // New state for loading
+  const [isUploading, setIsUploading] = useState(false); // State for loading
+  const [error, setError] = useState(null); // Added error state for handling logout errors
   const navigate = useNavigate();
+  const auth = getAuth(); // Initialize Firebase Auth
 
   const token = localStorage.getItem("token");
 
@@ -71,20 +74,56 @@ function UploadPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out using Firebase Auth
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      setError("Failed to sign out. Please try again.");
+    }
+  };
+
   return (
     <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen">
-      <header className="bg-blue-900 text-white flex justify-between items-center px-9 py-4">
+      <header className="bg-blue-900 text-white flex justify-between items-center fixed top-0 left-0 w-screen px-9 py-4 z-30">
         <h1 className="font-bold text-3xl">
           <span className="text-white">Speak</span>
           <span className="text-red-500">Easy</span>
         </h1>
         <nav className="flex flex-grow justify-end">
           <ul className="flex space-x-6">
-            <li className="text-lg font-regular hover:text-gray-300 cursor-pointer" onClick={() => navigate('/home')}>Home</li>
-            <li className="text-lg font-regular hover:text-gray-300 cursor-pointer" onClick={() => window.open("https://www.linkedin.com/in/sam-thomas-6ab3a1227/", "_blank")} style={{ marginRight: '40px' }}>Contact</li>
+            <li
+              className="text-lg font-regular hover:text-gray-300 cursor-pointer"
+              onClick={() => navigate("/home")}
+            >
+              Home
+            </li>
+            <li
+              className="text-lg font-regular hover:text-gray-300 cursor-pointer"
+              onClick={() => window.open("https://www.linkedin.com/in/sam-thomas-6ab3a1227/", "_blank")}
+              style={{ marginRight: "40px" }}
+            >
+              Contact
+            </li>
           </ul>
         </nav>
-        <button className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200" onClick={() => navigate('/login')}>Logout</button>
+        <div className="flex space-x-4">
+          <button
+            className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
+            onClick={() => navigate("/tracking")}
+          >
+            Profile
+          </button>
+          <button
+            className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <main className="flex flex-col lg:flex-row items-center p-20 flex-1">
@@ -129,6 +168,23 @@ function UploadPage() {
           <div className="flex flex-col items-center">
             <Loader size={40} /> {/* Using the Loader component */}
             <p className="text-white mt-4 text-lg">Uploading...</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4 text-red-500">Error</h2>
+            <p className="text-gray-700 mb-4">{error}</p>
+            <div className="flex justify-end">
+              <button
+                className="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
+                onClick={() => setError(null)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, query, where, orderBy, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
 import "../App.css";
+import { signOut } from "firebase/auth";
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -37,17 +38,16 @@ function ProgressTrackingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sessionResults, setSessionResults] = useState([]);
-  const [activeTab, setActiveTab] = useState("overview");
   const [showInfo, setShowInfo] = useState(null);
 
   // Profile data state
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "johndoe@example.com",
-    gender: "Not provided",
-    age: "Not provided",
-    dob: "Not provided",
-    profilePic: null,
+    //name: "John Doe",
+    //mail: "johndoe@example.com",
+    //gender: "Not provided",
+    //age: "Not provided",
+    //dob: "Not provided",
+    //profilePic: null,
   });
 
   // Fetch user ID and profile data from Firebase Auth and Firestore
@@ -166,6 +166,18 @@ function ProgressTrackingPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      setError("Failed to sign out. Please try again.");
+    }
+  };
+
   // Chart data preparation
   const chartData = {
     labels: sessionResults.map((session, index) => `Session ${index + 1}`),
@@ -278,7 +290,7 @@ function ProgressTrackingPage() {
   return (
     <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen">
       {/* Header */}
-      <header className="bg-blue-900 text-white flex justify-between items-center px-9 py-4">
+      <header className="bg-blue-900 text-white flex justify-between items-center fixed top-0 left-0 w-screen px-9 py-4 z-30">
         <h1 className="font-bold text-3xl">
           <span className="text-white">Speak</span>
           <span className="text-red-500">Easy</span>
@@ -300,16 +312,24 @@ function ProgressTrackingPage() {
             </li>
           </ul>
         </nav>
-        <button
-          className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
-          onClick={() => navigate("/login")}
-        >
-          Logout
-        </button>
+        <div className="flex space-x-4">
+          <button
+            className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
+            onClick={() => navigate("/tracking")}
+          >
+            Profile
+          </button>
+          <button
+            className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
-      <main className="p-10 flex flex-col space-y-8">
+      <main className="p-10 flex flex-col space-y-8 mt-12">
         {/* Profile Section */}
         <div className="bg-gray-100 border border-gray-300 p-6 rounded-lg shadow-md flex items-center space-x-8 relative">
           <div className="flex flex-col items-center">
@@ -416,120 +436,99 @@ function ProgressTrackingPage() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex space-x-4 border-b border-gray-300 pb-2">
-          <button
-            className={`px-4 py-2 ${
-              activeTab === "overview" ? "border-b-2 border-blue-900 font-bold" : "text-gray-600"
-            }`}
-            onClick={() => setActiveTab("overview")}
-          >
-            Overview
-          </button>
-          <button
-            className={`px-4 py-2 ${
-              activeTab === "analysis" ? "border-b-2 border-blue-900 font-bold" : "text-gray-600"
-            }`}
-            onClick={() => setActiveTab("analysis")}
-          >
-            Session History
-          </button>
-        </div>
-
-        {/* Session History */}
-        {activeTab === "analysis" && (
-          <div className="space-y-8">
-            {/* Graph Section */}
-            <div className="bg-gray-100 border border-gray-300 p-6 rounded-lg shadow-md relative">
-              <Line 
-                data={chartData} 
-                options={{
-                  ...chartOptions,
-                  plugins: {
-                    ...chartOptions.plugins,
-                    legend: {
-                      ...chartOptions.plugins.legend,
-                      onHover: handleLegendHover,
-                      onLeave: handleLegendLeave,
-                    },
+        {/* Session History Section */}
+        <div className="space-y-8">
+          <h2 className="text-2xl font-bold text-blue-900">Session History</h2>
+          {/* Graph Section */}
+          <div className="bg-gray-100 border border-gray-300 p-6 rounded-lg shadow-md relative">
+            <Line
+              data={chartData}
+              options={{
+                ...chartOptions,
+                plugins: {
+                  ...chartOptions.plugins,
+                  legend: {
+                    ...chartOptions.plugins.legend,
+                    onHover: handleLegendHover,
+                    onLeave: handleLegendLeave,
                   },
-                }} 
-              />
-              {showInfo && (
-                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white border border-gray-300 p-4 rounded-lg shadow-lg z-10 max-w-xs mr-4">
-                  <h4 className="font-semibold text-lg mb-2">{showInfo}</h4>
-                  <p className="text-gray-700">{featureInfo[showInfo].description}</p>
-                  <p className="text-gray-600 mt-2">
-                    <strong>Trend:</strong> {featureInfo[showInfo].trend}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {loading ? (
-              <p>Loading session data...</p>
-            ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : (
-              sessionResults.map((session, index) => (
-                <div
-                  key={session.id}
-                  className="bg-red-100 border border-red-900 p-6 rounded-lg shadow-md"
-                >
-                  <h4 className="text-xl font-semibold text-red-900 mb-2">Session {index + 1}</h4>
-                  <p className="text-gray-700">
-                    Date: {new Date(session.timestamp).toLocaleDateString()}
-                  </p>
-                  {session.prediction && session.confidence ? (
-                    <p className="text-gray-800">
-                      Prediction: {session.prediction} (Confidence:{" "}
-                      {(session.confidence * 100).toFixed(2)}%)
-                    </p>
-                  ) : (
-                    <p className="text-gray-600">No prediction available for this session.</p>
-                  )}
-                  {/* Display Features */}
-                  {Object.keys(session.features).length > 0 ? (
-                    <details className="mt-4">
-                      <summary className="text-red-900 font-semibold cursor-pointer">
-                        Speech Features
-                      </summary>
-                      <div className="mt-2 text-gray-700">
-                        <p>
-                          <strong>Average Pitch:</strong> {session.features.avg_pitch?.toFixed(2)} Hz
-                        </p>
-                        <p>
-                          <strong>Duration:</strong> {session.features.duration?.toFixed(2)} seconds
-                        </p>
-                        <p>
-                          <strong>Speech Rate:</strong> {session.features.speech_rate} Hz
-                        </p>
-                        <p>
-                          <strong>Total Pause Time:</strong>{" "}
-                          {session.features.total_pause_time?.toFixed(3)} seconds
-                        </p>
-                        <p>
-                          <strong>Zero Crossings:</strong> {session.features.zero_crossings}
-                        </p>
-                      </div>
-                    </details>
-                  ) : (
-                    <p className="text-gray-600 mt-4">No speech features available.</p>
-                  )}
-                  {/* Display Exercises */}
-                  <details className="mt-4">
-                    <summary className="text-red-900 font-semibold cursor-pointer">
-                      Personalized Exercise Plan
-                    </summary>
-                    <div className="mt-2 text-gray-700 whitespace-pre-wrap">
-                      {session.exercises}
-                    </div>
-                  </details>
-                </div>
-              ))
+                },
+              }}
+            />
+            {showInfo && (
+              <div className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white border border-gray-300 p-4 rounded-lg shadow-lg z-10 max-w-xs mr-4">
+                <h4 className="font-semibold text-lg mb-2">{showInfo}</h4>
+                <p className="text-gray-700">{featureInfo[showInfo].description}</p>
+                <p className="text-gray-600 mt-2">
+                  <strong>Trend:</strong> {featureInfo[showInfo].trend}
+                </p>
+              </div>
             )}
           </div>
-        )}
+
+          {loading ? (
+            <p>Loading session data...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            sessionResults.map((session, index) => (
+              <div
+                key={session.id}
+                className="bg-red-100 border border-red-900 p-6 rounded-lg shadow-md"
+              >
+                <h4 className="text-xl font-semibold text-red-900 mb-2">Session {index + 1}</h4>
+                <p className="text-gray-700">
+                  Date: {new Date(session.timestamp).toLocaleDateString()}
+                </p>
+                {session.prediction && session.confidence ? (
+                  <p className="text-gray-800">
+                    Prediction: {session.prediction} (Confidence:{" "}
+                    {(session.confidence * 100).toFixed(2)}%)
+                  </p>
+                ) : (
+                  <p className="text-gray-600">No prediction available for this session.</p>
+                )}
+                {/* Display Features */}
+                {Object.keys(session.features).length > 0 ? (
+                  <details className="mt-4">
+                    <summary className="text-red-900 font-semibold cursor-pointer">
+                      Speech Features
+                    </summary>
+                    <div className="mt-2 text-gray-700">
+                      <p>
+                        <strong>Average Pitch:</strong> {session.features.avg_pitch?.toFixed(2)} Hz
+                      </p>
+                      <p>
+                        <strong>Duration:</strong> {session.features.duration?.toFixed(2)} seconds
+                      </p>
+                      <p>
+                        <strong>Speech Rate:</strong> {session.features.speech_rate} Hz
+                      </p>
+                      <p>
+                        <strong>Total Pause Time:</strong>{" "}
+                        {session.features.total_pause_time?.toFixed(3)} seconds
+                      </p>
+                      <p>
+                        <strong>Zero Crossings:</strong> {session.features.zero_crossings}
+                      </p>
+                    </div>
+                  </details>
+                ) : (
+                  <p className="text-gray-600 mt-4">No speech features available.</p>
+                )}
+                {/* Display Exercises */}
+                <details className="mt-4">
+                  <summary className="text-red-900 font-semibold cursor-pointer">
+                    Personalized Exercise Plan
+                  </summary>
+                  <div className="mt-2 text-gray-700 whitespace-pre-wrap">
+                    {session.exercises}
+                  </div>
+                </details>
+              </div>
+            ))
+          )}
+        </div>
       </main>
     </div>
   );
