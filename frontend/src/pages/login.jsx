@@ -19,18 +19,17 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-blue-900 text-white py-4 w-full">
-      <div className=" max-w-6xl mx-auto flex justify-between items-center">
-        <h1 className="text-4xl font-bold cursor-pointer" onClick={handleHomeClick}>
-          <span className="text-white">Speak</span>
-          <span className="text-red-500">Easy</span>
-        </h1>
-        <nav>
-          <a href="#" className="text-lg px-4 hover:text-gray-400" onClick={handleHomeClick}>Home</a>
-          <a href="#" className="text-lg px-4 hover:text-gray-400" onClick={handleContactClick}>Contact</a>
-        </nav>
-      </div>
-    </header>
+    <header className="bg-blue-900 text-white flex justify-between items-center fixed top-0 left-0 w-screen px-9 py-4 z-30">
+  <h1 className="text-4xl font-bold cursor-pointer" onClick={handleHomeClick}>
+    <span className="text-white">Speak</span>
+    <span className="text-red-500">Easy</span>
+  </h1>
+  <nav className="flex gap-6">
+    <a href="#" className="text-lg hover:text-gray-400" onClick={handleHomeClick}>Home</a>
+    <a href="#" className="text-lg hover:text-gray-400" onClick={handleContactClick}>Contact</a>
+  </nav>
+</header>
+
   );
 };
 

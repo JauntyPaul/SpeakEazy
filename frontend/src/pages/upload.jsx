@@ -87,7 +87,7 @@ function UploadPage() {
   };
 
   return (
-    <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen">
+    <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen ">
       <header className="bg-blue-900 text-white flex justify-between items-center fixed top-0 left-0 w-screen px-9 py-4 z-30">
         <h1 className="font-bold text-3xl">
           <span className="text-white">Speak</span>
