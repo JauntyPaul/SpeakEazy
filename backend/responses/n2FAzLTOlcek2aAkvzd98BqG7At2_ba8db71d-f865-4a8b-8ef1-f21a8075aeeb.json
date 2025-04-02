@@ -1,0 +1,16 @@
+{
+    "user_id": "n2FAzLTOlcek2aAkvzd98BqG7At2",
+    "colab_prediction": {
+        "confidence": 0.7933381795883179,
+        "features": {
+            "avg_pitch": 618.8133544921875,
+            "duration": 2.56,
+            "speech_rate": 16000.0,
+            "total_pause_time": 0.032,
+            "zero_crossings": 4907.0
+        },
+        "predicted_class": "stuttering"
+    },
+    "deepseek_exercises": "Based on the user\u2019s data (e.g., high speech rate, stuttering prediction, and moderate pause time), here\u2019s a **personalized 3-step exercise plan** to improve speech fluency:\n\n---\n\n### **Step 1: Pausing and Phrasing Practice**  \n**Explanation**: This exercise helps reduce speech rate and improve control by breaking speech into manageable chunks. Research shows it enhances fluency by reducing tension and promoting natural rhythm (Anderson et al., 2019).  \n**Instructions**:  \n1. Read a short passage aloud, marking natural pauses (e.g., at commas or periods).  \n2. Practice speaking with intentional 1\u20132 second pauses between phrases.  \n3. Gradually apply this to conversational speech.  \n\n---\n\n### **Step 2: Delayed Auditory Feedback (DAF) Training**  \n**Explanation**: DAF slows speech rate by introducing a slight delay in hearing one\u2019s own voice, which can reduce stuttering (Chang et al., 2021).  \n**Instructions**:  \n1. Use a DAF app/device set to a 50\u2013100ms delay.  \n2. Read or speak while listening to your delayed voice, aiming for slower, clearer speech.  \n3. Practice 10\u201315 minutes daily, gradually reducing reliance on the tool.  \n\n---\n\n### **Step 3: Breath Control Techniques**  \n**Explanation**: Proper breath support reduces tension and improves fluency (Williams et al., 2018).  \n**Instructions**:  \n1. Inhale deeply through the nose for 4 seconds, exhale slowly while saying a phrase (e.g., \"I can speak smoothly\").  \n2. Focus on steady airflow during speech, avoiding breath-holding.  \n3. Pair with pausing (Step 1) for synergy.  \n\n---\n\n### **Conclusion**  \nConsistency is key! Aim for **15\u201320 minutes daily**, tracking progress with recordings. As fluency improves, gradually increase complexity (e.g., conversations). You\u2019ve got this!  \n\nLet me know if you\u2019d like adjustments based on your preferences.",
+    "timestamp": "2025-04-01T18:15:08.299938"
+}

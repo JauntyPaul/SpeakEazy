@@ -27,19 +27,28 @@ const HomePage = () => {
     navigate(isLoggedIn ? '/tracking' : '/login');
   };
 
+  const handleUploadClick = () => {
+    navigate(isLoggedIn ? '/upload' : '/login');
+  };
+
   return (
-    <div className="font-outfit min-h-screen flex flex-col  bg-white">
+    <div className="font-outfit min-h-screen flex flex-col bg-white">
       {/* Header Section */}
-      <header className="bg-white  justify-between items-center fixed top-0 left-0 w-screen px-9  z-30 ">
+      <header className="bg-white justify-between items-center fixed top-0 left-0 w-screen px-9 z-30">
         <div className="px-12 py-6 max-w-7xl mx-auto w-full flex justify-between items-center">
           <div className="text-4xl font-extrabold text-blue-900">
             Speak<span className="text-red-500">Easy</span>
           </div>
           <nav className="flex space-x-8">
             <a href="#" className="text-gray-800 hover:text-red-500 text-lg">Home</a>
-          
             <a href="#about" className="text-gray-800 hover:text-red-500 text-lg">About</a>
             <a href="#contact" className="text-gray-800 hover:text-red-500 text-lg">Contact</a>
+            <button
+              onClick={handleUploadClick}
+              className="text-gray-800 hover:text-red-500 text-lg"
+            >
+              Upload
+            </button>
             <button
               onClick={handleProfileClick}
               className="text-gray-800 hover:text-red-500 text-lg"
@@ -74,16 +83,16 @@ const HomePage = () => {
             </div>
           </div>
           <div className="relative">
-  <img
-    src={heroImage}
-    alt="Child learning illustration"
-    className="w-full h-auto rounded-lg object-cover transform translate-x-8" // Added transform translate-x-4
-    style={{
-      maskImage: "linear-gradient(to left, black 70%, transparent 100%)",
-      WebkitMaskImage: "linear-gradient(to left, black 70%, transparent 100%)",
-    }}
-  />
-</div>
+            <img
+              src={heroImage}
+              alt="Child learning illustration"
+              className="w-full h-auto rounded-lg object-cover transform translate-x-8"
+              style={{
+                maskImage: "linear-gradient(to left, black 70%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to left, black 70%, transparent 100%)",
+              }}
+            />
+          </div>
         </section>
 
         {/* About Section */}
@@ -102,7 +111,7 @@ const HomePage = () => {
             <div className="text-center mb-12">
               <h2 className="text-5xl font-bold text-blue-900">What Our Users Have To Say</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 md-grid-cols-3 gap-12">
               <div className="bg-blue-900 text-white rounded-lg p-8 shadow-lg">
                 <p className="italic mb-4 text-lg">"This tool has been a game-changer for my child's confidence. It's so easy to use!"</p>
                 <p className="font-bold text-lg">- Sam</p>

@@ -290,42 +290,48 @@ function ProgressTrackingPage() {
     <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen">
       {/* Header */}
       <header className="bg-blue-900 text-white flex justify-between items-center fixed top-0 left-0 w-screen px-9 py-4 z-30">
-        <h1 className="font-bold text-3xl">
-          <span className="text-white">Speak</span>
-          <span className="text-red-500">Easy</span>
-        </h1>
-        <nav className="flex flex-grow justify-end">
-          <ul className="flex space-x-6">
-            <li
-              className="text-lg font-regular hover:text-gray-300 cursor-pointer"
-              onClick={() => navigate("/home")}
-            >
-              Home
-            </li>
-            <li
-              className="text-lg font-regular hover:text-gray-300 cursor-pointer"
-              onClick={() => window.open("https://www.linkedin.com/in/sam-thomas-6ab3a1227/", "_blank")}
-              style={{ marginRight: "40px" }}
-            >
-              Contact
-            </li>
-          </ul>
-        </nav>
-        <div className="flex space-x-4">
-          <button
-            className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
-            onClick={() => navigate("/tracking")}
-          >
-            Profile
-          </button>
-          <button
-            className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        </div>
-      </header>
+  <h1 className="font-bold text-3xl">
+    <span className="text-white">Speak</span>
+    <span className="text-red-500">Easy</span>
+  </h1>
+  <nav className="flex flex-grow justify-end">
+    <ul className="flex space-x-6">
+      <li
+        className="text-lg font-regular hover:text-gray-300 cursor-pointer"
+        onClick={() => navigate("/home")}
+      >
+        Home
+      </li>
+      <li
+        className="text-lg font-regular hover:text-gray-300 cursor-pointer"
+        onClick={() => navigate("/upload")}
+      >
+        Upload
+      </li>
+      <li
+        className="text-lg font-regular hover:text-gray-300 cursor-pointer"
+        onClick={() => window.open("https://www.linkedin.com/in/sam-thomas-6ab3a1227/", "_blank")}
+        style={{ marginRight: "40px" }}
+      >
+        Contact
+      </li>
+    </ul>
+  </nav>
+  <div className="flex space-x-4">
+    <button
+      className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
+      onClick={() => navigate("/tracking")}
+    >
+      Profile
+    </button>
+    <button
+      className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
+      onClick={handleLogout}
+    >
+      Logout
+    </button>
+  </div>
+</header>
 
       {/* Main Content */}
       <main className="p-10 flex flex-col space-y-8 mt-12">
