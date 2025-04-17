@@ -1,0 +1,16 @@
+{
+    "user_id": "WC12dsqfwKM2kFa8DTB9obuwrt62",
+    "colab_prediction": {
+        "confidence": 0.7933381795883179,
+        "features": {
+            "avg_pitch": 799.6725463867188,
+            "duration": 7.2446875,
+            "speech_rate": 16000.0,
+            "total_pause_time": 0.384,
+            "zero_crossings": 10641.0
+        },
+        "predicted_class": "stuttering"
+    },
+    "deepseek_exercises": "Based on the user\u2019s data (high pitch, moderate speech rate, and predicted stuttering), here\u2019s a personalized 3-step exercise plan to improve fluency:\n\n---\n\n### **Step 1: Pausing and Phrasing Practice**  \n**Explanation**: This exercise helps reduce speech rate and improve control over pauses, which is particularly useful for users with stuttering tendencies (Anderson et al., 2019). The user\u2019s data shows a relatively fast speech rate (16,000 samples/sec) and short pause time (0.384s), indicating a need for better pacing.  \n**Instructions**:  \n1. Choose a short paragraph (5\u20136 sentences).  \n2. Read it aloud, deliberately inserting a 1\u20132 second pause at natural breaks (e.g., commas, periods).  \n3. Gradually extend pauses to 3 seconds while maintaining smooth transitions.  \n4. Repeat daily for 10 minutes, focusing on rhythmic phrasing.  \n\n---\n\n### **Step 2: Delayed Auditory Feedback (DAF) Training**  \n**Explanation**: DAF introduces a slight delay in hearing one\u2019s own speech, which can slow speech rate and reduce stuttering (Chang et al., 2021). The user\u2019s high pitch (799.67 Hz) and stuttering prediction suggest this could enhance self-monitoring.  \n**Instructions**:  \n1. Use a DAF app (e.g., \"Speech4Good\") set to a 50\u2013100ms delay.  \n2. Read aloud or speak spontaneously while listening to the delayed feedback.  \n3. Aim to match your speech to the delayed sound, slowing down naturally.  \n4. Practice 5\u201310 minutes daily, gradually reducing reliance on the tool.  \n\n---\n\n### **Step 3: Breath Control Techniques**  \n**Explanation**: Proper breath support stabilizes vocal tone and reduces tension, addressing the user\u2019s high pitch and fluency disruptions (Williams et al., 2018).  \n**Instructions**:  \n1. **Diaphragmatic Breathing**: Inhale deeply for 4 seconds (hand on belly to feel expansion), hold for 2 seconds, exhale for 6 seconds.  \n2. **Phrased Breathing**: Pair breaths with speech (e.g., inhale, say \"The cat sat...\" on one breath, pause, inhale again).  \n3. Practice 5 minutes daily before speaking tasks.  \n\n---\n\n### **Conclusion**:  \nConsistency is key! Start with these exercises daily for 2\u20133 weeks, then reassess progress. Consider tracking speech rate and pause times to measure improvement. You\u2019ve got this\u2014small steps lead to big gains in fluency!  \n\nLet me know if you'd like adjustments based on your preferences.",
+    "timestamp": "2025-04-01T17:08:00.545850"
+}

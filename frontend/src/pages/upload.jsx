@@ -1,57 +1,129 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAuth, signOut } from 'firebase/auth'; // Import getAuth and signOut
 import '.././App.css';
 import uploadImage from "../assets/assets/smiling.jpg";
+import Loader from "../components/loader"; // Import the Loader component
 
 function UploadPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate(); // Hook to navigate programmatically
+  const [isUploading, setIsUploading] = useState(false); // State for loading
+  const [error, setError] = useState(null); // Added error state for handling logout errors
+  const navigate = useNavigate();
+  const auth = getAuth(); // Initialize Firebase Auth
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    console.error("User is not authenticated");
+    return;
+  }
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      console.log("No file selected.");
+    const user_id = localStorage.getItem("user_id");
+    if (!user_id) {
+      console.error("User ID is missing! Redirecting to login...");
+      navigate("/login");
       return;
     }
-
+  
+    if (!selectedFile) {
+      alert("Please select an audio file first");
+      return;
+    }
+  
     const formData = new FormData();
-    formData.append('audio', selectedFile);
-
+    formData.append("audio", selectedFile);
+    formData.append("user_id", user_id);
+    
+    setIsUploading(true); // Show loader
+    
     try {
-      const response = await fetch('http://127.0.0.1:5000/predict', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:5000/upload-audio", {
+        method: "POST",
         body: formData,
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
       });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Response from server:", data);
-        navigate('/assessment', { state: { assessmentData: data.result } }); // Navigate to assessment page with state
-      } else {
-        console.error("Failed to upload file:", response.statusText);
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || `Server error: ${response.status}`);
       }
+  
+      console.log("Response from server:", data);
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      navigate("/assessment", { state: { assessmentData: data } });
     } catch (error) {
       console.error("Error uploading file:", error);
+      alert(`Upload failed: ${error.message}`);
+    } finally {
+      setIsUploading(false); // Hide loader regardless of success or failure
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out using Firebase Auth
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      setError("Failed to sign out. Please try again.");
     }
   };
 
   return (
-    <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen">
-      <header className="bg-blue-900 text-white flex justify-between items-center px-9 py-4">
+    <div className="font-sans bg-white p-0 m-0 text-gray-800 min-h-screen ">
+      <header className="bg-blue-900 text-white flex justify-between items-center fixed top-0 left-0 w-screen px-9 py-4 z-30">
         <h1 className="font-bold text-3xl">
           <span className="text-white">Speak</span>
           <span className="text-red-500">Easy</span>
         </h1>
         <nav className="flex flex-grow justify-end">
           <ul className="flex space-x-6">
-            <li className="text-lg font-regular hover:text-gray-300 cursor-pointer" onClick={() => navigate('/home')}>Home</li>
-            <li className="text-lg font-regular hover:text-gray-300 cursor-pointer" onClick={() => window.open("https://www.linkedin.com/in/sam-thomas-6ab3a1227/", "_blank")} style={{ marginRight: '40px' }}>Contact</li>
+            <li
+              className="text-lg font-regular hover:text-gray-300 cursor-pointer"
+              onClick={() => navigate("/home")}
+            >
+              Home
+            </li>
+            <li
+              className="text-lg font-regular hover:text-gray-300 cursor-pointer"
+              onClick={() => window.open("https://www.linkedin.com/in/sam-thomas-6ab3a1227/", "_blank")}
+              style={{ marginRight: "40px" }}
+            >
+              Contact
+            </li>
           </ul>
         </nav>
-        <button className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200" onClick={() => navigate('/login')}>Logout</button>
+        <div className="flex space-x-4">
+          <button
+            className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
+            onClick={() => navigate("/tracking")}
+          >
+            Profile
+          </button>
+          <button
+            className="text-white border border-white px-5 py-1 rounded-full hover:bg-gray-200 hover:text-blue-900 transition-colors duration-200"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <main className="flex flex-col lg:flex-row items-center p-20 flex-1">
@@ -78,7 +150,7 @@ function UploadPage() {
         </div>
       </main>
 
-      {showModal && (
+      {showModal && !isUploading && (
         <div className="fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-8 rounded-lg">
             <h2 className="text-xl font-semibold mb-4">Upload Audio File</h2>
@@ -86,6 +158,32 @@ function UploadPage() {
             <div className="flex justify-end mt-4">
               <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-blue-900 transition-colors duration-200" onClick={() => { setShowModal(false); handleUpload(); }}>Upload</button>
               <button className="ml-4 px-4 py-2 rounded border border-gray-300" onClick={() => setShowModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isUploading && (
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="flex flex-col items-center">
+            <Loader size={40} /> {/* Using the Loader component */}
+            <p className="text-white mt-4 text-lg">Uploading...</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4 text-red-500">Error</h2>
+            <p className="text-gray-700 mb-4">{error}</p>
+            <div className="flex justify-end">
+              <button
+                className="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
+                onClick={() => setError(null)}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
